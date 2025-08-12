@@ -28,14 +28,31 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
 
-    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {}
+    fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (Ok(r), Ok(g), Ok(b)) 
+            = (u8::try_from(tuple.0), u8::try_from(tuple.1), u8::try_from(tuple.2)) else {
+                return Err(Self::Error::IntConversion);
+            };
+        Ok(Color{ red: r, green: g, blue: b})
+    }
 }
 
 // TODO: Array implementation.
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
 
-    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {}
+    fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        let mut arr_iter = arr.iter();
+        let (Some(r_i16), Some(g_i16), Some(b_i16), None) 
+            = (arr_iter.next(), arr_iter.next(), arr_iter.next(), arr_iter.next()) else {
+                return Err(Self::Error::BadLen);
+        };
+        let (Ok(r), Ok(g), Ok(b)) 
+            = (u8::try_from(*r_i16), u8::try_from(*g_i16), u8::try_from(*b_i16)) else {
+                return Err(Self::Error::IntConversion);
+        };
+        Ok(Color{ red: r, green: g, blue: b})
+    }
 }
 
 // TODO: Slice implementation.
@@ -43,7 +60,18 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
 
-    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {}
+    fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        let mut slice_iter = slice.into_iter();
+        let (Some(r_i16), Some(g_i16), Some(b_i16), None) 
+            = (slice_iter.next(), slice_iter.next(), slice_iter.next(), slice_iter.next()) else {
+                return Err(Self::Error::BadLen);
+        };
+        let (Ok(r), Ok(g), Ok(b)) 
+            = (u8::try_from(*r_i16), u8::try_from(*g_i16), u8::try_from(*b_i16)) else {
+                return Err(Self::Error::IntConversion);
+        };
+        Ok(Color{ red: r, green: g, blue: b})
+    }
 }
 
 fn main() {
